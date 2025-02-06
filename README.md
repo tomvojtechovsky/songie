@@ -1,40 +1,99 @@
-# Sonie – MusicXML Generator & Player
-
-Songie je aplikace pro generování a přehrávání hudby ve formátu MusicXML. Umožňuje kreativní tvorbu hudebních partitur, jejich úpravu a export v jednom přehledném prostředí.  
+# Songie – MusicXML Generator & Player
+Songie je aplikace pro generování a přehrávání hudby ve formátu MusicXML. Umožňuje kreativní tvorbu hudebních partitur, jejich úpravu a export v jednom přehledném prostředí.
 Cílem aplikace je usnadnit proces kompozice a poskytovat moderní nástroje pro hudebníky i skladatele.
-
 ## Klíčové funkce
-- Generování a export do MusicXML.
-- Možnost přehrávání vytvořené hudby.
-- Editace a úpravy partitur.
-- Uživatelsky přívětivé rozhraní pro rychlou práci s notami.
+
+Generování a export do MusicXML
+Možnost přehrávání vytvořené hudby
+Editace a úpravy partitur
+Uživatelsky přívětivé rozhraní pro rychlou práci s notami
+Přihlašování pomocí Google účtu
 
 ## Technologie
-- React / JavaScript (frontend)
-- Node.js (backend)
-- Tailwind CSS (styly)
-- MusicXML jako výstupní formát
+### Frontend
 
+React
+Tailwind CSS
+Vite
+
+### Backend
+
+FastAPI (Python)
+OAuth2 pro autentizaci
+MusicXML jako výstupní formát
+
+## Struktura projektu
+```
+songie/
+├── .env            # Konfigurační soubor (CLIENT_ID, CLIENT_SECRET, ...)
+├── client/         # React aplikace
+└── server/         # FastAPI backend
+├── auth/       # Autentizační logika
+├── core/       # Základní konfigurace
+└── main.py     # Hlavní aplikační soubor
+```
 ## Instalace a spuštění
-### **Krok 1: Aktivace virtuálního prostředí a spuštění serveru**
-1. Otevři PowerShell a přejdi do složky `server`:
+### Příprava
 
+Naklonujte repozitář
+Vytvořte soubor .env v root složce s následujícími proměnnými:
+```
+CLIENT_ID=váš_google_client_id
+CLIENT_SECRET=váš_google_client_secret
+```
+
+### Backend (FastAPI)
+
+Otevřete PowerShell a přejděte do složky server:
+```powershell
 cd path\to\project\songie\server
-
-2 Aktivuj virtuální prostředí:
+```
+Aktivujte virtuální prostředí:
+```powershell
 venv\Scripts\activate
-
-3. Spusť server:
+```
+Nainstalujte závislosti:
+```powershell
+pip install fastapi uvicorn python-dotenv authlib httpx starlette itsdangerous
+```
+Spusťte server:
+```powershell
 uvicorn main:app --reload
+```
+Server běží na: http://127.0.0.1:8000
 
-Server poběží na adrese: http://127.0.0.1:8000
+### Frontend (React)
 
-
+Otevřete nový PowerShell a přejděte do složky client:
+```powershell
 cd path\to\project\songie\client
+```
+Nainstalujte závislosti:
+```powershell
+npm install
+```
+Spusťte vývojový server:
+```powershell
 npm run dev
-Klient poběží na adrese: http://127.0.0.1:5173
+```
+Klient běží na: http://127.0.0.1:5173
 
-### **Krok 2: Spuštění klienta**
-1. Otevři nový PowerShell tab a přejdi do složky client:
-2. cd path\to\project\songie\client
-3. npm run dev
+## Řešení problémů
+### Zamrzlý server
+Pokud server nejde vypnout pomocí CTRL+C, použijte:
+```powershell
+taskkill /IM python.exe /F
+```
+### Dostupné endpointy
+
+/auth/login/google - přihlášení přes Google
+/auth/google/callback - callback po přihlášení
+/auth/logout - odhlášení
+/auth/me - info o přihlášeném uživateli
+/test - testovací endpoint
+
+## Vývoj
+
+V produkci nastavit https_only=True pro SessionMiddleware
+Session vyprší po 24 hodinách
+Pro vývoj je CORS povoleno pro http://localhost:5173
