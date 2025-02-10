@@ -7,54 +7,65 @@ import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Získání cesty k root adresáři projektu (o dvě úrovně výš než config.py)
+# Získání cesty k root adresáři projektu
 ROOT_DIR = Path(__file__).parent.parent.parent
 
 # Načtení .env souboru z root adresáře
-env_path = ROOT_DIR / '.env'
+env_path = ROOT_DIR / ".env"
 if env_path.exists():
     logger.info(f"Loading .env from {env_path}")
     load_dotenv(env_path)
 else:
     logger.warning(f".env file not found at {env_path}")
 
-# Základní konfigurace
-ENV = os.getenv("ENV", "development")
-DEBUG = ENV == "development"
 
-# Server konfigurace
-SERVER_HOST = os.getenv("SERVER_HOST", "127.0.0.1")
-SERVER_PORT = int(os.getenv("SERVER_PORT", "8000"))
+class Config:
+    # Přidáme MongoDB konfiguraci
+    MONGODB_URL = os.getenv("MONGODB_URL", "mongodb://localhost:27017")
+    MONGODB_DB_NAME = os.getenv("MONGODB_DB_NAME", "songie_db")
 
-# Delka session
-SESSION_LIFETIME = 24 * 60 * 60  # 24 hodin v sekundách
+    # Server konfigurace
+    SERVER_HOST = os.getenv("SERVER_HOST", "127.0.0.1")
+    SERVER_PORT = int(os.getenv("SERVER_PORT", "8000"))
 
-# OAuth konfigurace
-GOOGLE_CLIENT_ID = os.getenv("CLIENT_ID")
-GOOGLE_CLIENT_SECRET = os.getenv("CLIENT_SECRET")
+    # OAuth konfigurace
+    GOOGLE_CLIENT_ID = os.getenv("CLIENT_ID")
+    GOOGLE_CLIENT_SECRET = os.getenv("CLIENT_SECRET")
 
-# Frontend URL
-FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
+    # Session konfigurace
+    SESSION_SECRET = os.getenv("SESSION_SECRET", "your-super-secret-key")
+    SESSION_LIFETIME = 24 * 60 * 60  # 24 hodin v sekundách
 
-# Session konfigurace
-SESSION_SECRET = os.getenv("SESSION_SECRET", "your-super-secret-key")  # v produkci MUSÍ být v .env
+    # Frontend URL
+    FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
 
-# Kontrola povinných proměnných
-def validate_config():
-    required_vars = {
-        "GOOGLE_CLIENT_ID": GOOGLE_CLIENT_ID,
-        "GOOGLE_CLIENT_SECRET": GOOGLE_CLIENT_SECRET,
-    }
-    
-    missing_vars = [var for var, value in required_vars.items() if not value]
-    
-    if missing_vars:
-        raise ValueError(f"Missing required environment variables: {', '.join(missing_vars)}")
+    def validate(self):
+        required_vars = {
+            "GOOGLE_CLIENT_ID": self.GOOGLE_CLIENT_ID,
+            "GOOGLE_CLIENT_SECRET": self.GOOGLE_CLIENT_SECRET,
+        }
 
-# Zkontrolujeme konfiguraci při importu
+        missing_vars = [var for var, value in required_vars.items() if not value]
+
+        if missing_vars:
+            raise ValueError(
+                f"Missing required environment variables: {', '.join(missing_vars)}"
+            )
+
+    # Detekce dev prostředí podle URL
+    FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
+    IS_DEV = "localhost" in FRONTEND_URL
+
+# Vytvoření instance konfigurace
+config = Config()
+
+# Validace při importu
 try:
-    validate_config()
+    config.validate()
 except ValueError as e:
     logger.error(str(e))
-    if ENV == "production":
-        raise  # V produkci selže spuštění
+    if os.getenv("ENV") == "production":
+        raise
+
+# Export konfigurace
+__all__ = ["config"]

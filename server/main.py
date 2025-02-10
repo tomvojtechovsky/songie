@@ -1,7 +1,9 @@
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
 
+from db.database import db
 from auth.routes import router as auth_router
 import logging
 from core.config import config
@@ -10,15 +12,33 @@ from core.config import config
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup
+    logger.info("Starting up...")
+    await db.connect_to_database()
+    try:
+        await db.client.admin.command('ping')
+        logger.info("Successfully connected to MongoDB")
+    except Exception as e:
+        logger.error(f"Could not connect to MongoDB: {e}")
+        raise e
+ 
+    yield  # Tady běží aplikace
+
+    # Shutdown
+    logger.info("Shutting down...")
+    db.close_database_connection()
+
 # Vytvoření FastAPI aplikace
-app = FastAPI()
+app = FastAPI(lifespan=lifespan)
 
 # Middlewares
 app.add_middleware(
     SessionMiddleware,
     secret_key=config.SESSION_SECRET,
-    max_age=config.SESSION_LIFETIME,  # session vyprší po 24 hodinách
-    same_site='lax',  # ochrana proti CSRF
+    max_age=config.SESSION_LIFETIME,
+    same_site='lax',
     https_only=False  # pro development, v produkci True
 )
 
@@ -31,8 +51,12 @@ app.add_middleware(
 )
 
 # Připojení rout
-app.include_router(auth_router, prefix="/auth", tags=["auth"])
+app.include_router(auth_router)
 
+# Výpis dostupných rout
+for route in app.routes:
+    logger.info(f"Route: {route.path}")
+    
 # Test endpoint
 @app.get("/test")
 def test():

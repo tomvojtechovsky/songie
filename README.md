@@ -92,6 +92,23 @@ taskkill /IM python.exe /F
 /auth/me - info o přihlášeném uživateli
 /test - testovací endpoint
 
+Přihlášení:
+
+http://localhost:8000/auth/login/google
+
+Získání informací o přihlášeném uživateli:
+
+http://localhost:8000/auth/me
+
+Test chráněného endpointu:
+
+http://localhost:8000/auth/protected-test
+
+Odhlášení (POST request):
+
+http://localhost:8000/auth/logout
+
+
 ## Vývoj
 
 V produkci nastavit https_only=True pro SessionMiddleware
