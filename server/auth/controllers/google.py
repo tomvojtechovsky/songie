@@ -1,6 +1,6 @@
 # controllers/google.py
 from models.user import User
-from datetime import datetime
+from datetime import datetime, timezone
 from fastapi.responses import RedirectResponse
 from core.config import config
 from auth.providers import oauth  # přidáme import oauth
@@ -12,15 +12,13 @@ def set_user_session(request, user):
     """Nastaví user data do session"""
     request.session['user'] = {
         'email': user.email,
-        'name': user.name,
-        'auth_type': user.auth_type,  # přidáme auth_type
-        'logged_in_at': datetime.utcnow().isoformat()
+        'auth_type': user.auth_type,
+        'logged_in_at': datetime.now(timezone.utc).isoformat()
     }
 
 async def update_google_user(user, userinfo):
     """Aktualizuje existujícího uživatele"""
-    user.name = userinfo['name']
-    user.updated_at = datetime.utcnow()
+    user.updated_at = datetime.now(timezone.utc).isoformat()
     await user.save()
     logger.info(f"Updated existing user: {user.email}")
     return user
@@ -29,7 +27,6 @@ async def create_google_user(userinfo):
     """Vytvoří nového Google uživatele"""
     user = User(
         email=userinfo['email'],
-        name=userinfo['name'],
         auth_type="google",
         provider_id=userinfo['sub'],
         is_verified=True

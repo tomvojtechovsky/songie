@@ -1,7 +1,6 @@
 import { Box, Card, CardContent, Tabs, Tab, Typography } from '@mui/material';
 import { useState } from 'react';
-import { useAuth } from '../features/auth/authContext';
-import ProfileSettingsForm from '../components/profile/ProfileSettingsForm';
+import { useAuth } from '../features/auth';
 import ChangePasswordForm from '../components/profile/ChangePasswordForm';
 
 interface TabPanelProps {
@@ -29,11 +28,11 @@ function TabPanel(props: TabPanelProps) {
 
 const UserProfile = () => {
     const [tabValue, setTabValue] = useState(0);
-    const { user } = useAuth();  // použijeme náš auth context
+    const { user } = useAuth();
 
     const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
         setTabValue(newValue);
-      };
+    };
 
     return (
         <Box sx={{ maxWidth: 800, mx: 'auto', mt: 4, p: 2 }}>
@@ -42,7 +41,6 @@ const UserProfile = () => {
                     <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
                         <Tabs value={tabValue} onChange={handleTabChange}>
                             <Tab label="Profil" />
-                            <Tab label="Nastavení účtu" />
                             {user?.auth_type === 'local' && <Tab label="Změna hesla" />}
                         </Tabs>
                     </Box>
@@ -52,19 +50,11 @@ const UserProfile = () => {
                             Informace o profilu
                         </Typography>
                         <Typography>Email: {user?.email}</Typography>
-                        <Typography>Jméno: {user?.name}</Typography>
                         <Typography>Typ účtu: {user?.auth_type === 'google' ? 'Google' : 'Lokální'}</Typography>
                     </TabPanel>
 
-                    <TabPanel value={tabValue} index={1}>
-                        <Typography variant="h6" gutterBottom>
-                            Nastavení účtu
-                        </Typography>
-                        <ProfileSettingsForm />
-                    </TabPanel>
-
                     {user?.auth_type === 'local' && (
-                        <TabPanel value={tabValue} index={2}>
+                        <TabPanel value={tabValue} index={1}>  {/* Změna z index={2} na index={1} */}
                             <Typography variant="h6" gutterBottom>
                                 Změna hesla
                             </Typography>

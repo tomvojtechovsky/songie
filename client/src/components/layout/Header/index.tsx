@@ -1,7 +1,7 @@
 import { AppBar, Button, Toolbar, Box, Typography, IconButton, Menu, MenuItem, Avatar } from '@mui/material';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../../features/auth/authContext';
+import { useAuth } from '../../../features/auth';
 import logo from '../../../assets/img/logo.png';
 import LoginDialog from '../../auth/LoginDialog';  // Přidáme později
 import RegistrationDialog from '../../auth/RegistrationDialog';  // Přidáme později
@@ -54,6 +54,18 @@ const Header = () => {
                             Songie
                         </Typography>
                     </Box>
+
+                    {/* Mezera */}
+                    <Box sx={{ flexGrow: 1 }} />
+
+                    {/* odkaz na /tailwindtest */}
+                    <Button
+                        color="inherit"
+                        onClick={() => navigate('/tailwindtest')}
+                    >
+                        Tailwind test
+                    </Button>
+
 
                     {/* Mezera */}
                     <Box sx={{ flexGrow: 1 }} />

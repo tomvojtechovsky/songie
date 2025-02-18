@@ -1,21 +1,7 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { authService } from '../../services/api/auth';
-
-// Definice typu pro uživatele
-type User = {
-    email: string;
-    name: string;
-    auth_type: 'google' | 'local';  // přidáme auth_type
-  } | null;
-  
-  type AuthContextType = {
-    user: User;
-    loading: boolean;
-    checkAuth: () => Promise<void>;
-    logout: () => Promise<void>;
-  };
-
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+import { User } from './types';
+import { AuthContext } from './context';
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const [user, setUser] = useState<User>(null);
@@ -26,7 +12,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             const userData = await authService.checkAuth();
             setUser(userData);
         } catch (error) {
-            console.error('Auth check failed:', error);
+            setUser(null);
+            if (error instanceof Error && error.message !== 'Auth check failed') {
+                console.error('Unexpected auth error:', error);
+            }
         } finally {
             setLoading(false);
         }
@@ -50,12 +39,4 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             {children}
         </AuthContext.Provider>
     );
-};
-
-export const useAuth = () => {
-    const context = useContext(AuthContext);
-    if (context === undefined) {
-        throw new Error('useAuth must be used within an AuthProvider');
-    }
-    return context;
 };

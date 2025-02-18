@@ -1,3 +1,4 @@
+# server\models\user.py
 from beanie import Document
 from datetime import datetime, timezone
 from typing import Optional
@@ -12,8 +13,8 @@ class User(Document):
     is_verified: bool = False
     verification_token: Optional[str] = None
     verification_token_expires: Optional[datetime] = None
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
 
     @staticmethod
     def generate_verification_token() -> str:

@@ -1,6 +1,7 @@
 from functools import wraps
 from fastapi import Request, HTTPException
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta
+
 import logging
 
 logger = logging.getLogger(__name__)
@@ -34,23 +35,25 @@ def get_current_user(request: Request) -> dict:
         )
     return request.session['user']
 
-def check_session_expired(request: Request) -> bool:
-    """
-    Kontroluje, zda session nevypršela.
-    
-    Args:
-        request: FastAPI Request objekt
-    
-    Returns:
-        bool: True pokud session vypršela, jinak False
-    """
+from datetime import datetime, timezone, timedelta
+
+def check_session_expired(request):
+    """Kontroluje, zda session nevypršela."""
     if not is_user_logged_in(request):
         return True
         
+    # Převedeme string na datetime s časovou zónou
     logged_in_at = datetime.fromisoformat(request.session['user']['logged_in_at'])
-    session_lifetime = timedelta(hours=24)  # Můžeme načítat z config
+    session_lifetime = timedelta(hours=24)
     
-    return datetime.utcnow() - logged_in_at > session_lifetime
+    # Explicitně použijeme UTC pro současný čas
+    current_time = datetime.now(timezone.utc)
+    
+    # Pokud logged_in_at nemá timezone info, přidáme UTC
+    if logged_in_at.tzinfo is None:
+        logged_in_at = logged_in_at.replace(tzinfo=timezone.utc)
+    
+    return current_time - logged_in_at > session_lifetime
 
 def require_auth(func):
     """

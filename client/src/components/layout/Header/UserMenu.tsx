@@ -1,6 +1,6 @@
 import { Avatar, Box, IconButton, Menu, MenuItem } from '@mui/material';
 import { useState } from 'react';
-import { useAuth } from '../../../features/auth/authContext';  // upravená cesta k importu
+import { useAuth } from '../../../features/auth/AuthProvider';  // upravená cesta k importu
 
 const UserMenu = () => {
     const { user, logout } = useAuth();

@@ -1,3 +1,5 @@
+# server\main.py
+
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -16,40 +18,41 @@ logger = logging.getLogger(__name__)
 async def lifespan(app: FastAPI):
     # Startup
     logger.info("Starting up...")
-    await db.connect_to_database()
+    await db.connect_to_database()  # Inicializace databáze
     try:
         await db.client.admin.command('ping')
         logger.info("Successfully connected to MongoDB")
     except Exception as e:
         logger.error(f"Could not connect to MongoDB: {e}")
         raise e
- 
+
     yield  # Tady běží aplikace
 
     # Shutdown
     logger.info("Shutting down...")
     db.close_database_connection()
 
-# Vytvoření FastAPI aplikace
-app = FastAPI(lifespan=lifespan)
+# Vytvoření FastAPI aplikace s lifespan managerem
+app = FastAPI(lifespan=lifespan)  # Toto je klíčová změna
 
-# Middlewares
-app.add_middleware(
-    SessionMiddleware,
-    secret_key=config.SESSION_SECRET,
-    max_age=config.SESSION_LIFETIME,
-    same_site='lax',
-    https_only=False  # pro development, v produkci True
-)
-
+# CORS middleware MUSÍ být první!
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["*"]
 )
 
+# Session middleware až po CORS
+app.add_middleware(
+    SessionMiddleware,
+    secret_key=config.SESSION_SECRET,
+    max_age=config.SESSION_LIFETIME,
+    same_site='lax',
+    https_only=False
+)
 # Připojení rout
 app.include_router(auth_router)
 

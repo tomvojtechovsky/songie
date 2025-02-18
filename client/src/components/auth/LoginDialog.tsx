@@ -2,7 +2,7 @@ import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Stack, TextF
 import { Google, Visibility, VisibilityOff } from '@mui/icons-material';
 import { useState } from 'react';
 import config from '../../config';
-import { useAuth } from '../../features/auth/authContext';
+import { useAuth } from '../../features/auth';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 interface LoginDialogProps {
@@ -34,8 +34,13 @@ const LoginDialog = ({ open, onClose }: LoginDialogProps) => {
     };
 
     const handleSuccessfulLogin = () => {
-        const from = state?.from?.pathname || '/';
-        navigate(from);
+        // Pokud přicházíme z /profile, přesměrujeme na home page
+        const from = state?.from?.pathname;
+        if (from === '/profile') {
+            navigate('/');
+        } else {
+            navigate(from || '/');
+        }
         onClose();
     };
 

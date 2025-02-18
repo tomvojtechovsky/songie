@@ -4,6 +4,7 @@ import Header from './components/layout/Header'
 import Footer from './components/layout/Footer'
 import Hero from './components/layout/Hero'
 import UserProfile from './pages/UserProfile'
+import Twtest from './pages/Twtest'
 import ProtectedRoute from './components/auth/ProtectedRoute'
 
 function App() {
@@ -32,6 +33,12 @@ function App() {
             <ProtectedRoute>
               <UserProfile />
             </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/tailwindtest" 
+          element={
+              <Twtest />
           } 
         />
       </Routes>

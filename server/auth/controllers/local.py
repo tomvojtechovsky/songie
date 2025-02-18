@@ -54,7 +54,6 @@ async def login_user(request: Request, login_data):
     # Nastavení session
     request.session['user'] = {
         'email': user.email,
-        'name': user.name,
         'auth_type': user.auth_type,
         'logged_in_at': datetime.utcnow().isoformat()
     }

@@ -1,6 +1,6 @@
 // components/auth/ProtectedRoute.tsx
 import { Navigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../../features/auth/authContext';
+import { useAuth } from '../../features/auth';
 import LoadingSpinner from '../ui/LoadingSpinner';
 import { Snackbar, Alert } from '@mui/material';
 import { useState, useEffect } from 'react';
